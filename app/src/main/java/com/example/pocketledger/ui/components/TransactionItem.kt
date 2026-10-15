@@ -1,9 +1,11 @@
 package com.example.pocketledger.ui.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -27,10 +29,11 @@ fun TransactionItem(
     transaction: Transaction,
     modifier: Modifier = Modifier
 ) {
+
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 12.dp),
+            .background(MaterialTheme.colorScheme.background),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -56,6 +59,7 @@ fun TransactionItem(
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = transaction.category.displayName,
                 style = MaterialTheme.typography.bodySmall,
@@ -74,4 +78,5 @@ fun TransactionItem(
             color = if (transaction.type == TransactionType.INCOME) AppIncomeColor else AppRed
         )
     }
+
 }

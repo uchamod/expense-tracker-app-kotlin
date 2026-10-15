@@ -14,5 +14,7 @@ data class HomeUiState(
 
     val isLoading: Boolean = false,
 
+    val showAllTransactions: Boolean = false,
+
     val errorMessage: String? = null
 )

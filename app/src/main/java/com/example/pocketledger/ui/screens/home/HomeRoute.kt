@@ -23,6 +23,13 @@ fun HomeRoute(){
         .collectAsStateWithLifecycle()
 
     HomeScreen(
-        uiState = uiState
+        uiState = uiState,
+        showAllTransaction = {
+            viewModel.isShowAllTransaction()
+        },
+        deleteTransaction ={ id ->
+            viewModel.deleteTransaction(id)
+
+        }
     )
 }

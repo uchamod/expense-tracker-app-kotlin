@@ -2,6 +2,7 @@ package com.example.pocketledger.ui.screens.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -28,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.pocketledger.ui.components.SummaryCard
+import com.example.pocketledger.ui.components.SwipeToDeleteTransactionItem
 import com.example.pocketledger.ui.components.TransactionItem
 import com.example.pocketledger.ui.theme.AppBlue
 import com.example.pocketledger.ui.theme.AppExpenseColor
@@ -36,8 +38,18 @@ import com.example.pocketledger.ui.theme.AppIncomeColor
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    uiState: HomeUiState
+    uiState: HomeUiState,
+    showAllTransaction : () -> Unit,
+    deleteTransaction : (Long) -> Unit
 ){
+
+    val displayedTransactions =
+        if (uiState.showAllTransactions) {
+            uiState.transactions
+        } else {
+            uiState.transactions.take(6)
+        }
+
     Scaffold(
        modifier = Modifier.fillMaxSize().background(Color(0xFFFFFFFF)),
         topBar = {
@@ -116,23 +128,35 @@ fun HomeScreen(
                    )
 
                    TextButton(
-                       onClick = {
-                           // navigation will come later
-                       }
+                       onClick = showAllTransaction,
+                       enabled = !uiState.isLoading
                    ) {
-                       Text("See All",
-                           color = AppBlue)
+                       Text( text = if(uiState.showAllTransactions) {
+                           "See Less"
+                       }else{
+                           "See All"
+                       } ,
+
+                               color = AppBlue
+
+                       )
                    }
                }
            }
-            items(uiState.transactions, key = {
+            items(displayedTransactions, key = {
                 transition ->
                 transition.id
             }){
                 transactions ->
-                    TransactionItem(
-                        transactions
+                Column() {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    SwipeToDeleteTransactionItem(
+                        transaction = transactions,
+                        onDelete = deleteTransaction
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
                 HorizontalDivider()
             }
 
