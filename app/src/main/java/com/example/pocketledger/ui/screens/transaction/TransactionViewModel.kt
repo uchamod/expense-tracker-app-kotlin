@@ -163,36 +163,44 @@ class TransactionViewModel(
                 dateError == null
     }
 
-    fun createTransaction(
-        onSuccess:() -> Unit
-    ){
+   suspend fun createTransaction(): Result<Unit>{
         if(!validate()){
-            return
+            return Result.failure(
+                Exception("Please check the required fields.")
+            )
         }
 
-        val state = _uiState.value
+            val state = _uiState.value
 
-        viewModelScope.launch {
+
             _uiState.update {
                 it.copy(
                     isSaving = true
                 )
             }
+           return try {
+                val transaction = Transaction(
+                    title = state.title.trim(),
+                    category = requireNotNull(state.category),
+                    amount = state.amount.toDouble(),
+                    type = state.type,
+                    date =  requireNotNull(state.date),
+                    remarks = state.remark.trim().takeIf { it.isNotBlank() }
+                )
 
-            val transaction = Transaction(
-                title = state.title.trim(),
-                category = requireNotNull(state.category),
-                amount = state.amount.toDouble(),
-                type = state.type,
-                date =  requireNotNull(state.date),
-                remarks = state.remark.trim().takeIf { it.isNotBlank() }
-            )
-
-            repository.createTransaction(transaction)
-            resetForm()
-            onSuccess()
-        }
-    }
+                repository.createTransaction(transaction)
+                resetForm()
+               Result.success(Unit)
+            }catch (exception: Exception){
+               Result.failure(exception)
+            }finally {
+                _uiState.update {
+                    it.copy(
+                        isSaving = false
+                    )
+                }
+            }
+   }
 
     private fun resetForm() {
         _uiState.value =

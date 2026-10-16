@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import com.example.pocketledger.domain.model.TransactionCategory
 import com.example.pocketledger.domain.model.TransactionType
 import com.example.pocketledger.ui.components.Transaction.CategoryDropdown
+import com.example.pocketledger.ui.components.Transaction.TransactionCreatePopUp
 import com.example.pocketledger.ui.components.Transaction.TransactionTypeDropDown
 import java.time.Instant
 import java.time.ZoneOffset
@@ -66,6 +67,8 @@ fun TransactionsScreen(
             .toLocalDate()
             .format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
     }
+
+
 
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
@@ -209,6 +212,8 @@ fun TransactionsScreen(
                     Text("Create Transaction")
                 }
             }
+
+
         }
     }
 }
