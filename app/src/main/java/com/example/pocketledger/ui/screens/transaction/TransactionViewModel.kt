@@ -1,7 +1,6 @@
 package com.example.pocketledger.ui.screens.transaction
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.example.pocketledger.domain.model.Transaction
 import com.example.pocketledger.domain.model.TransactionCategory
 import com.example.pocketledger.domain.model.TransactionType
@@ -9,7 +8,7 @@ import com.example.pocketledger.domain.repository.TransactionRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+
 
 class TransactionViewModel(
     private val repository: TransactionRepository

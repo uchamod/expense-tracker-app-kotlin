@@ -24,6 +24,7 @@ fun CategoryDropdown(
     error: String?,
     onSelected: (TransactionCategory) -> Unit
 ){
+
     var expanded by remember {
         mutableStateOf(false)
     }

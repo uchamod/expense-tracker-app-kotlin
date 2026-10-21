@@ -1,21 +1,16 @@
-package com.example.pocketledger.ui.screens.transaction
+package com.example.pocketledger.ui.components.Transaction
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,21 +28,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.pocketledger.domain.model.TransactionCategory
 import com.example.pocketledger.domain.model.TransactionType
-import com.example.pocketledger.ui.components.Transaction.CategoryDropdown
-import com.example.pocketledger.ui.components.Transaction.TransactionCreatePopUp
-import com.example.pocketledger.ui.components.Transaction.TransactionTypeDropDown
+import com.example.pocketledger.ui.screens.transaction.TransactionFormUiState
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TransactionsScreen(
+fun TransactionForm(
     uiState: TransactionFormUiState,
     onTypeChange: (TransactionType) -> Unit,
     onCategoryChange: (TransactionCategory) -> Unit,
@@ -55,8 +47,8 @@ fun TransactionsScreen(
     onAmountChanged: (String) -> Unit,
     onRemarkChanged: (String) -> Unit,
     onDateChanged: (Long) -> Unit,
-    createTransaction: () -> Unit
-) {
+
+){
     var showDatePicker by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
@@ -67,8 +59,6 @@ fun TransactionsScreen(
             .toLocalDate()
             .format(DateTimeFormatter.ofPattern("dd MMM yyyy"))
     }
-
-
 
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState(
@@ -97,33 +87,25 @@ fun TransactionsScreen(
         }
     }
 
-    LazyColumn(
+    Column(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        item {
-            Text(
-                text = "PocketLedger",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        item {
+
             TransactionTypeDropDown(
                 selectedType = uiState.type,
                 onSelected = onTypeChange
             )
-        }
-        item {
+
+
             CategoryDropdown(
                 type = uiState.type,
                 selectedCategory = uiState.category,
                 error = uiState.categoryError,
                 onSelected = onCategoryChange
             )
-        }
-        item {
+
+
             OutlinedTextField(
                 value = uiState.title,
                 onValueChange = onTitleChange,
@@ -136,8 +118,8 @@ fun TransactionsScreen(
                     uiState.titleError?.let { Text(it) } ?: Text("${uiState.title.length}/60")
                 }
             )
-        }
-        item {
+
+
             OutlinedTextField(
                 value = uiState.amount,
                 onValueChange = onAmountChanged,
@@ -150,8 +132,8 @@ fun TransactionsScreen(
                 isError = uiState.amountError != null,
                 supportingText = { uiState.amountError?.let { Text(it) } }
             )
-        }
-        item {
+
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,8 +166,8 @@ fun TransactionsScreen(
                     supportingText = { uiState.dateError?.let { Text(it) } }
                 )
             }
-        }
-        item {
+
+
             OutlinedTextField(
                 value = uiState.remark,
                 onValueChange = onRemarkChanged,
@@ -197,23 +179,6 @@ fun TransactionsScreen(
                 maxLines = 6,
                 supportingText = { Text("${uiState.remark.length}/250") }
             )
-        }
-        item {
-            Button(
-                onClick = createTransaction,
-                enabled = !uiState.isSaving,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-            ) {
-                if (uiState.isSaving) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                } else {
-                    Text("Create Transaction")
-                }
-            }
 
-
-        }
     }
 }

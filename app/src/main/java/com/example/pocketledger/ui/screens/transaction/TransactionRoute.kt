@@ -11,6 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pocketledger.PocketLedgerApplication
 import com.example.pocketledger.ui.components.Transaction.TransactionCreatePopUp
+import com.example.pocketledger.ui.screens.transaction.crate.TransactionsScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -49,11 +50,11 @@ fun TransactionRoute(){
 
                 val result = viewModel.createTransaction()
 
-                if(result.isSuccess){
+                if (result.isSuccess) {
                     popupSuccess = true
 
                     popupMessage = "Transaction created successfully."
-                } else{
+                } else {
                     popupSuccess = false
 
                     popupMessage = "Failed to create transaction."
@@ -62,11 +63,11 @@ fun TransactionRoute(){
             }
         },
         onTypeChange = viewModel::onTypeChange,
-        onDateChanged =  viewModel::onDateChanged,
-        onTitleChange =  viewModel::onTitleChange,
-        onAmountChanged =  viewModel::onAmountChanged,
-        onRemarkChanged =  viewModel::onRemarkChanged,
-        onCategoryChange =  viewModel::onCategoryChange
+        onDateChanged = viewModel::onDateChanged,
+        onTitleChange = viewModel::onTitleChange,
+        onAmountChanged = viewModel::onAmountChanged,
+        onRemarkChanged = viewModel::onRemarkChanged,
+        onCategoryChange = viewModel::onCategoryChange
     )
     if (showPopup) {
 

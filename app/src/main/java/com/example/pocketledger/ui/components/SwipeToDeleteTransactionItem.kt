@@ -23,7 +23,8 @@ import com.example.pocketledger.domain.model.Transaction
 fun SwipeToDeleteTransactionItem(
     transaction: Transaction,
     onDelete: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick:() -> Unit
 ) {
 
     val dismissState = rememberSwipeToDismissBoxState (
@@ -50,7 +51,8 @@ fun SwipeToDeleteTransactionItem(
 
     ) {
         TransactionItem(
-            transaction = transaction
+            transaction = transaction,
+            onClick = onClick
         )
 
     }

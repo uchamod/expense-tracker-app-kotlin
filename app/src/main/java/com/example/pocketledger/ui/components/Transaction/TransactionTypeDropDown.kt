@@ -1,6 +1,7 @@
 package com.example.pocketledger.ui.components.Transaction
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -50,7 +51,7 @@ fun TransactionTypeDropDown(
                     expanded=expanded
                 )
             },
-            modifier = Modifier.menuAnchor().fillMaxSize()
+            modifier = Modifier.menuAnchor().fillMaxWidth()
         )
 
         ExposedDropdownMenu(

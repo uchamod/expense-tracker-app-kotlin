@@ -8,7 +8,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pocketledger.PocketLedgerApplication
 
 @Composable
-fun HomeRoute(){
+fun HomeRoute(
+    onTransactionClick:(Long) -> Unit
+){
     val context = LocalContext.current
     val app = context.applicationContext as PocketLedgerApplication
 
@@ -29,7 +31,7 @@ fun HomeRoute(){
         },
         deleteTransaction ={ id ->
             viewModel.deleteTransaction(id)
-
-        }
+        },
+        onTransactionClick = onTransactionClick
     )
 }

@@ -1,6 +1,8 @@
 package com.example.pocketledger.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -14,7 +16,9 @@ import androidx.compose.material.icons.filled.TrendingUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,13 +31,17 @@ import com.example.pocketledger.ui.theme.AppRed
 @Composable
 fun TransactionItem(
     transaction: Transaction,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onClick:() -> Unit
 ) {
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.background),
+            .background(MaterialTheme.colorScheme.background).clickable(
+                indication = ripple(),
+                interactionSource = remember { MutableInteractionSource() },
+                onClick = onClick),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -80,3 +88,5 @@ fun TransactionItem(
     }
 
 }
+
+

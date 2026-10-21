@@ -30,7 +30,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.pocketledger.ui.components.SummaryCard
 import com.example.pocketledger.ui.components.SwipeToDeleteTransactionItem
-import com.example.pocketledger.ui.components.TransactionItem
 import com.example.pocketledger.ui.theme.AppBlue
 import com.example.pocketledger.ui.theme.AppExpenseColor
 import com.example.pocketledger.ui.theme.AppIncomeColor
@@ -40,7 +39,8 @@ import com.example.pocketledger.ui.theme.AppIncomeColor
 fun HomeScreen(
     uiState: HomeUiState,
     showAllTransaction : () -> Unit,
-    deleteTransaction : (Long) -> Unit
+    deleteTransaction : (Long) -> Unit,
+    onTransactionClick: (Long) -> Unit
 ){
 
     val displayedTransactions =
@@ -152,7 +152,11 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     SwipeToDeleteTransactionItem(
                         transaction = transactions,
-                        onDelete = deleteTransaction
+                        onDelete = deleteTransaction,
+                        onClick = {
+                            onTransactionClick(transactions.id)
+                        }
+
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
@@ -161,10 +165,5 @@ fun HomeScreen(
             }
 
     }
-
-
     }
-
-
-
 }

@@ -19,4 +19,15 @@ sealed class AppDestination(
         route = "settings",
         title = "Settings"
     )
+
+    data object TransactionDetails  : AppDestination(
+        route = "transaction/{transactionId}",
+        title = "Transaction Details"
+    ){
+        fun createRoute(
+            transactionId: Long
+        ) : String {
+            return "transaction/$transactionId"
+        }
+    }
 }
