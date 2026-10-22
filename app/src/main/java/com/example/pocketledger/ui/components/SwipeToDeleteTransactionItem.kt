@@ -3,7 +3,6 @@ package com.example.pocketledger.ui.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -32,10 +31,8 @@ fun SwipeToDeleteTransactionItem(
             dismissValue ->
                 if (dismissValue == SwipeToDismissBoxValue.StartToEnd){
                     onDelete(transaction.id)
-                    true
-                }else{
-                    false
                 }
+            false
         }
     )
 

@@ -3,6 +3,7 @@ package com.example.pocketledger.ui.screens.transaction.details
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun TransactionDetailsRoute(
     transactionId: Long,
-    onCallBack:() -> Unit
+    onCallBack:() -> Unit,
+    onOperationSuccess: () -> Unit
 ){
 
     val context = LocalContext.current
@@ -43,17 +45,18 @@ fun TransactionDetailsRoute(
     )
 
     val uiState by vm.uiState.collectAsStateWithLifecycle()
-    fun uiStateToTransaction(state: TransactionFormUiState) : Transaction{
-        return Transaction(
-            title = state.title.trim(),
-            category = requireNotNull(state.category),
-            amount = state.amount.toDouble(),
-            type = state.type,
-            date =  requireNotNull(state.date),
-            remark = state.remark.trim().takeIf { it.isNotBlank() }
-
-        )
-    }
+//    fun uiStateToTransaction(state: TransactionFormUiState) : Transaction{
+//        return Transaction(
+//            id = transactionId,
+//            title = state.title.trim(),
+//            category = requireNotNull(state.category),
+//            amount = state.amount.toDouble(),
+//            type = state.type,
+//            date =  requireNotNull(state.date),
+//            remark = state.remark.trim().takeIf { it.isNotBlank() }
+//
+//        )
+//    }
     var loading by remember(transactionId) { mutableStateOf(true) }
     var loadError by remember(transactionId) { mutableStateOf<String?>(null) }
     var actionError by remember { mutableStateOf<String?>(null) }
@@ -78,27 +81,70 @@ fun TransactionDetailsRoute(
                 CircularProgressIndicator()
             }
         }loadError != null->{
-            Text(loadError!!)
+            Text(loadError ?: "Unable to load transaction.")
         }
         else -> {
             SingleTransactionScreen(
-                transaction = uiStateToTransaction(uiState),
+                uiState = uiState,
+
                 onBackClick = onCallBack,
+
+                onTypeChange = vm::onTypeChange,
+                onCategoryChange = vm::onCategoryChange,
+                onTitleChange = vm::onTitleChange,
+                onAmountChanged = vm::onAmountChanged,
+                onRemarkChanged = vm::onRemarkChanged,
+                onDateChanged = vm::onDateChanged,
                 onUpdateCallBack = {
                     scope.launch {
-                        vm.updateTransaction()
+                        val result = vm.updateTransaction()
+                        if (result.isSuccess) {
+                            onOperationSuccess()
+                        } else {
+                            actionError =
+                                result.exceptionOrNull()?.message
+                                    ?: "Unable to update transaction."
+                        }
                     }
 
                 },
                 onDeleteConfirmed = {
                     scope.launch {
-                        vm.deleteCurrentTransaction()
+                        val result =  vm.deleteCurrentTransaction()
+                        if (result.isSuccess) {
+                            onOperationSuccess()
+                        } else {
+                            actionError =
+                                result.exceptionOrNull()?.message
+                                    ?: "Unable to delete transaction."
+                        }
                     }
                 }
 
             )
         }
     }
-
+    if (actionError != null) {
+        AlertDialog(
+            onDismissRequest = {
+                actionError = null
+            },
+            title = {
+                Text("Operation failed")
+            },
+            text = {
+                Text(actionError.orEmpty())
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        actionError = null
+                    }
+                ) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 
 }

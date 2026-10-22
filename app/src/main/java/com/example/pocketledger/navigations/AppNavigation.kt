@@ -95,6 +95,17 @@ fun AppNavigation(){
                     transactionId = trasactionId,
                     onCallBack = {
                         navController.popBackStack()
+                    },
+                    onOperationSuccess = {
+                        navController.navigate(
+                            AppDestination.Home.route
+                        ) {
+                            popUpTo(AppDestination.Home.route) {
+                                inclusive = false
+                            }
+
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

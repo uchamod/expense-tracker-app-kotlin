@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.pocketledger.domain.model.Transaction
+import com.example.pocketledger.domain.model.TransactionCategory
+import com.example.pocketledger.domain.model.TransactionType
 import com.example.pocketledger.ui.components.Transaction.TransactionConfirmAction
 import com.example.pocketledger.ui.components.Transaction.TransactionConfirmDialog
 import com.example.pocketledger.ui.components.Transaction.TransactionForm
@@ -44,29 +46,37 @@ private val amountPattern =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SingleTransactionScreen(
-    transaction: Transaction,
-    onBackClick:()-> Unit,
+    uiState: TransactionFormUiState,
 
-    onUpdateCallBack:() -> Unit,
+    onBackClick: () -> Unit,
+
+    onTypeChange: (TransactionType) -> Unit,
+    onCategoryChange: (TransactionCategory) -> Unit,
+    onTitleChange: (String) -> Unit,
+    onAmountChanged: (String) -> Unit,
+    onRemarkChanged: (String) -> Unit,
+    onDateChanged: (Long) -> Unit,
+
+    onUpdateCallBack: () -> Unit,
     onDeleteConfirmed: () -> Unit
 ){
 
     var showDatePicker by remember { mutableStateOf(false) }
 
-    var formState by remember(transaction.id) {
-        mutableStateOf(
-            TransactionFormUiState(
-                type = transaction.type,
-                category = transaction.category,
-                title = transaction.title,
-                amount = transaction.amount
-                    .toString()
-                    .removeSuffix(".0"),
-                date = transaction.date,
-                remark = transaction.remark.orEmpty()
-            )
-        )
-    }
+//    var formState by remember(transaction.id) {
+//        mutableStateOf(
+//            TransactionFormUiState(
+//                type = transaction.type,
+//                category = transaction.category,
+//                title = transaction.title,
+//                amount = transaction.amount
+//                    .toString()
+//                    .removeSuffix(".0"),
+//                date = transaction.date,
+//                remark = transaction.remark.orEmpty()
+//            )
+//        )
+//    }
 
     var confirmAction by remember {
         mutableStateOf<TransactionConfirmAction?>(null)
@@ -140,54 +150,14 @@ fun SingleTransactionScreen(
             }
             item {
                 TransactionForm(
-                    uiState = formState,
-                    onTypeChange = { newType ->
-                        formState = formState.copy(
-                            type = newType,
-                            category = null,
-                            categoryError = null
-                        )
-                    },
+                    uiState = uiState,
 
-                        onCategoryChange = { newCategory ->
-                            formState = formState.copy(
-                                category = newCategory,
-                                categoryError = null
-                            )
-                        },
-
-                        onTitleChange = { value ->
-                            if (value.length <= 60) {
-                                formState = formState.copy(
-                                    title = value,
-                                    titleError = null
-                                )
-                            }
-                        },
-                    onAmountChanged = { value ->
-                        if (amountPattern.matches(value)) {
-                            formState = formState.copy(
-                                amount = value,
-                                amountError = null
-                            )
-                        }
-                    },
-
-                    onRemarkChanged = { value ->
-                        if (value.length <= 250) {
-                            formState = formState.copy(
-                                remark = value,
-                                remarkError = null
-                            )
-                        }
-                    },
-
-                    onDateChanged = { newDate ->
-                        formState = formState.copy(
-                            date = newDate,
-                            dateError = null
-                        )
-                    }
+                    onTypeChange = onTypeChange,
+                    onCategoryChange = onCategoryChange,
+                    onTitleChange = onTitleChange,
+                    onAmountChanged = onAmountChanged,
+                    onRemarkChanged = onRemarkChanged,
+                    onDateChanged = onDateChanged
                 )
             }
                 //////////////////////////
@@ -199,6 +169,7 @@ fun SingleTransactionScreen(
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         Button(
+                            enabled =  !uiState.isSaving,
                             onClick = {
                                 confirmAction =
                                     TransactionConfirmAction.UPDATE
@@ -222,6 +193,7 @@ fun SingleTransactionScreen(
                             Text("Update")
                         }
                         Button(
+                            enabled =  !uiState.isSaving,
                             onClick = {
                                 confirmAction =
                                     TransactionConfirmAction.DELETE
