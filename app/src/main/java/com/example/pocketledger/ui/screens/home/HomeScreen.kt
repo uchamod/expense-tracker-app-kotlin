@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.TrendingDown
 import androidx.compose.material.icons.filled.TrendingUp
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -40,7 +41,8 @@ fun HomeScreen(
     uiState: HomeUiState,
     showAllTransaction : () -> Unit,
     deleteTransaction : (Long) -> Unit,
-    onTransactionClick: (Long) -> Unit
+    onTransactionClick: (Long) -> Unit,
+    onRefresh: () -> Unit = {}
 ){
 
     val displayedTransactions =
@@ -64,7 +66,25 @@ fun HomeScreen(
             .fillMaxSize().padding(innerPadding)
             .padding(horizontal =16.dp)
     ) {
-//total balance row
+           if(uiState.errorMessage != null){
+               item {
+                   Text(
+                       text = uiState.errorMessage,
+                       color = MaterialTheme.colorScheme.error
+                   )
+
+                   TextButton(onClick = onRefresh) {
+                       Text("Retry")
+                   }
+               }
+           }
+            if (uiState.isLoading) {
+                item {
+                    CircularProgressIndicator()
+                }
+            }
+
+            //total balance row
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),

@@ -9,5 +9,5 @@ data class Transaction(
     val amount: Double,
     val type: TransactionType,
     val date: Long,
-    val remarks: String?
+    val remark: String?
 )

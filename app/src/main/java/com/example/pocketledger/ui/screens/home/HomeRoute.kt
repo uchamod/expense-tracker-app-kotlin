@@ -32,6 +32,7 @@ fun HomeRoute(
         deleteTransaction ={ id ->
             viewModel.deleteTransaction(id)
         },
-        onTransactionClick = onTransactionClick
+        onTransactionClick = onTransactionClick,
+        onRefresh = viewModel::refreshTransactions
     )
 }

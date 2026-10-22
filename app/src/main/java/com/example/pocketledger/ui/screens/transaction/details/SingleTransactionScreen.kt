@@ -1,7 +1,6 @@
 package com.example.pocketledger.ui.screens.transaction.details
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -48,8 +47,8 @@ fun SingleTransactionScreen(
     transaction: Transaction,
     onBackClick:()-> Unit,
 
-    onUpdateCallBack:(TransactionFormUiState) -> Unit ={},
-    onDeleteConfirmed: (Long) -> Unit = {}
+    onUpdateCallBack:() -> Unit,
+    onDeleteConfirmed: () -> Unit
 ){
 
     var showDatePicker by remember { mutableStateOf(false) }
@@ -64,7 +63,7 @@ fun SingleTransactionScreen(
                     .toString()
                     .removeSuffix(".0"),
                 date = transaction.date,
-                remark = transaction.remarks.orEmpty()
+                remark = transaction.remark.orEmpty()
             )
         )
     }
@@ -84,10 +83,10 @@ fun SingleTransactionScreen(
 
                when(action){
                     TransactionConfirmAction.DELETE -> {
-                            onDeleteConfirmed(transaction.id)
+                            onDeleteConfirmed()
                     }
                     TransactionConfirmAction.UPDATE -> {
-                           onUpdateCallBack(formState)
+                           onUpdateCallBack()
                    }
                }
            }

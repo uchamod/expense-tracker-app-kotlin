@@ -20,7 +20,7 @@ class TransactionViewModel(
         )
 
     val uiState = _uiState.asStateFlow()
-
+    private var editingId: Long? = null
     val availableCategories get() = TransactionCategory.entries.filter {
         it.type == _uiState.value.type
     }
@@ -184,7 +184,7 @@ class TransactionViewModel(
                     amount = state.amount.toDouble(),
                     type = state.type,
                     date =  requireNotNull(state.date),
-                    remarks = state.remark.trim().takeIf { it.isNotBlank() }
+                    remark = state.remark.trim().takeIf { it.isNotBlank() }
                 )
 
                 repository.createTransaction(transaction)
@@ -200,6 +200,95 @@ class TransactionViewModel(
                 }
             }
    }
+
+
+
+    suspend fun loadTransaction(id: Long): Result<Unit> {
+        return try {
+            val transaction = repository.getTransactionById(id)  ?: return Result.failure(
+                NoSuchElementException("Transaction not found")
+            )
+            editingId = transaction.id
+            _uiState.update {
+                it.copy(
+                    title = transaction.title,
+                    category = transaction.category,
+                    amount = transaction.amount.toString(),
+                    type = transaction.type,
+                    date = transaction.date,
+                    remark = transaction.remark.orEmpty(),
+                    titleError = null,
+                    amountError = null,
+                    categoryError = null,
+                    dateError = null
+                )
+            }
+            Result.success(Unit)
+        }catch (e: kotlinx.coroutines.CancellationException){
+            throw e
+        } catch (e: Exception){
+            Result.failure(e)
+        }
+    }
+
+
+    suspend fun updateTransaction(): Result<Unit> {
+        if (!validate()) {
+            return Result.failure(
+                IllegalArgumentException("Check the required fields")
+            )
+        }
+
+        val id = editingId ?: return Result.failure(
+            IllegalStateException("No transaction selected")
+        )
+
+        val state = _uiState.value
+
+        _uiState.update { it.copy(isSaving = true) }
+
+        return try {
+            val updated = Transaction(
+                id = id,
+                title = state.title.trim(),
+                category = requireNotNull(state.category),
+                amount = state.amount.toDouble(),
+                type = state.type,
+                date = requireNotNull(state.date),
+                remark = state.remark.trim()
+                    .takeIf { it.isNotEmpty() }
+            )
+
+            repository.updateTransaction(updated)
+
+            Result.success(Unit)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        } finally {
+            _uiState.update { it.copy(isSaving = false) }
+        }
+    }
+
+    suspend fun deleteCurrentTransaction(): Result<Unit> {
+        val id = editingId ?: return Result.failure(
+            IllegalStateException("No transaction selected")
+        )
+
+        _uiState.update { it.copy(isSaving = true) }
+
+        return try {
+            repository.deleteTransaction(id)
+            Result.success(Unit)
+        }catch (e: kotlinx.coroutines.CancellationException){
+            throw e
+        }catch (e: Exception) {
+            Result.failure(e)
+        } finally {
+            _uiState.update { it.copy(isSaving = false) }
+        }
+    }
 
     private fun resetForm() {
         _uiState.value =

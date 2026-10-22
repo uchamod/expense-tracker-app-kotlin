@@ -12,5 +12,5 @@ data class TransactionEntity(
     val amount: Double,
     val type: String,
     val date: Long,
-    val remarks: String?
+    val remark: String?
 )

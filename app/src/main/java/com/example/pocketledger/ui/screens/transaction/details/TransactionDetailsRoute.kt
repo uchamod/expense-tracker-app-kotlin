@@ -7,67 +7,96 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.pocketledger.PocketLedgerApplication
 import com.example.pocketledger.domain.model.Transaction
-import kotlinx.coroutines.flow.Flow
+import com.example.pocketledger.ui.screens.transaction.TransactionFormUiState
+import com.example.pocketledger.ui.screens.transaction.TransactionViewModel
+import com.example.pocketledger.ui.screens.transaction.TransactionViewModelFactory
+import kotlinx.coroutines.launch
 
 @Composable
 fun TransactionDetailsRoute(
     transactionId: Long,
     onCallBack:() -> Unit
 ){
+
     val context = LocalContext.current
 
     val app = context.applicationContext as PocketLedgerApplication
 
-    val repository = app.container.transactionRepository
+    val vm: TransactionViewModel = viewModel(
+        key = "detail-$transactionId",
+        factory = TransactionViewModelFactory(
+            app.container.transactionRepository
+        )
+    )
 
-    val transactionFlow: Flow<List<Transaction>?> =
-        remember(repository) {
-            repository.observeTransactions()
+    val uiState by vm.uiState.collectAsStateWithLifecycle()
+    fun uiStateToTransaction(state: TransactionFormUiState) : Transaction{
+        return Transaction(
+            title = state.title.trim(),
+            category = requireNotNull(state.category),
+            amount = state.amount.toDouble(),
+            type = state.type,
+            date =  requireNotNull(state.date),
+            remark = state.remark.trim().takeIf { it.isNotBlank() }
+
+        )
+    }
+    var loading by remember(transactionId) { mutableStateOf(true) }
+    var loadError by remember(transactionId) { mutableStateOf<String?>(null) }
+    var actionError by remember { mutableStateOf<String?>(null) }
+    var confirmDelete by remember { mutableStateOf(false) }
+
+    val scope = rememberCoroutineScope()
+
+    LaunchedEffect(transactionId) {
+        val result = vm.loadTransaction(transactionId)
+        loadError = result.exceptionOrNull()?.let {
+            "Unable to load transaction."
         }
+        loading = false
+    }
 
-    val transactions by transactionFlow.collectAsStateWithLifecycle(initialValue = null)
-
-    when(val loadedTransaction = transactions){
-        null -> {
+    when{
+        loading -> {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ){
                 CircularProgressIndicator()
             }
-        }else ->{
-            val selectedTransaction = loadedTransaction.firstOrNull{
-                it.id == transactionId
-            }
-        if(selectedTransaction != null){
+        }loadError != null->{
+            Text(loadError!!)
+        }
+        else -> {
             SingleTransactionScreen(
-                transaction = selectedTransaction,
-                onBackClick = onCallBack
-            )
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text("Transaction not found")
+                transaction = uiStateToTransaction(uiState),
+                onBackClick = onCallBack,
+                onUpdateCallBack = {
+                    scope.launch {
+                        vm.updateTransaction()
+                    }
 
-                    TextButton(onClick = onCallBack) {
-                        Text("Go Back")
+                },
+                onDeleteConfirmed = {
+                    scope.launch {
+                        vm.deleteCurrentTransaction()
                     }
                 }
-            }
-        }
+
+            )
         }
     }
 
